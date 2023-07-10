@@ -41,7 +41,7 @@ config = {
 
 def eval(model, loader):
 
-    results_list = []
+    triplets = []
     results = {}
 
     #test loop 
@@ -59,11 +59,11 @@ def eval(model, loader):
         scoring_triples = list(
             zip(test_batch["query_id"], test_batch["doc_id"], output.tolist())
         )
-        results_list.extend(scoring_triples)  
+        triplets.extend(scoring_triples)  
     
     #evaluation
 
-    for query_id, doc_id, score in results_list:
+    for query_id, doc_id, score in triplets:
         results.setdefault(str(query_id), []).append((str(doc_id), float(score)))
     ranked_results = unrolled_to_ranked_result(results)
 
@@ -150,7 +150,6 @@ for epoch in range(4):
             results.append(mrr10)
 
             if mrr10 > best_res:
-                torch.save(model.state_dict(), PATH + "data/dumps/tk/epoch"+str(epoch)+"_valmrr"+str(mrr10)+".pth")
                 best_res = mrr10
                 last_best_res = 0
             else:
