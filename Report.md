@@ -1,10 +1,10 @@
 # Team information
 
-Student 1 ID + Name: Ana Terović
+Student 1 12205927 Ana Terović
 
-Student 2 ID + Name: Fani Sentinella-Jerbić
+Student 2 12206591 Fani Sentinella-Jerbić
 
-Student 3 ID + Name: 12224159 Iva Pezo
+Student 3 12224159 Iva Pezo
 
 
 # Report
@@ -47,3 +47,68 @@ The passage is relevant to the given query, but an average user probably wouldn'
 
 Individual judgements: 3, 3, 2
 The passage seems to be perfectly aligned with the query.
+
+
+## Part 3 - Extractive QA
+
+We selected a model from deepset called `tinyroberta-squad2`, which is a distilled version of `roberta-base-squad2`. We used default hyperparameters for both the tokenizer and the prediction model. 
+
+The model receives question and context pairs, and outputs text from context which answers the question.
+
+Example input:
+
+```
+QA_input = {
+	'question': 'how many oscars has clint eastwood won?pdrijgheposrgijapeoikgjpesoar',
+    'context': 'Clint Eastwood -- five-time Oscar winner and eleven-time nominee -- has some advice for people who got snubbed at the Academy Awards this year ... quit whining. Eastwood -- an Academy stalwart -- isn't buying into the protests over the so-called black snub.'
+}
+```
+
+Example output:
+
+```
+QA_output = {
+	'score': 0.9574741125106812, 
+	'start': 18, 
+	'end': 22, 
+	'answer': 'five'
+	}
+```
+
+The biggest issue for this part was the size of the MSMARCO FIRA 21, which made the computation longer, which is why we decided to use the distilled model.
+
+### Evaluation
+
+#### MSMARCO FIRA 21
+
+Using the provided evaluation code, we compute the F1 score for each tuple. As some tuples contain multiple gold-label answers, we take the maximum of the F1 score between each of them and the predicted answer. Afterward, we aggregate the results using mean, standard deviation, min, and max. As this model also outputs a confidence score, we report the same aggregations for this one as well.
+
+The retrieved results are provided below:
+
+```
+f1 score
+MEAN:  0.4194
+STD:   0.3270
+MIN:   0.0000
+MAX:   1.0000
+
+confidence score
+MEAN:  0.3237
+STD:   0.3111
+MIN:   0.0000
+MAX:   0.9986
+```
+
+We investigate some of the examples where the model fails:
+
+```
+what level is blood pressure too low     if it causes noticeable symptoms
+define uncut?                            Adjective
+what is the actual us independence day   the national holiday
+```
+We can see that the model is arguably not wrong in many of the cases, but the answers are often reminiscent of a child pretending to be a *smartass*. It is also interesting to look at the confidence scores of these examples where the model failed. For example, for this one which is completely wrong, the model also outputs a very low confidence score of 4.718824e-06:
+```
+what do you put basil on                 spices to enhance the taste of pasta
+```
+
+
