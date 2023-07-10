@@ -48,6 +48,32 @@ The passage is relevant to the given query, but an average user probably wouldn'
 Individual judgements: 3, 3, 2
 The passage seems to be perfectly aligned with the query.
 
+## Part 2 - Neural Re-Ranking
+
+For the implementation of the two models we found a lot of help in the original papers. KNRM was much simpler to implement and most of the trouble was with understanding of the shapes of tensors. One interesting problem was with tensor.CosineSimilarity function, which had wrong documentation online on how it works which resulted in wrong tensor dimensions. For the implementation of TK we based the code on https://github.com/sebastian-hofstaetter/matchmaker/blob/master/matchmaker/models/published/ecai20_tk.py, while adapting it to the given code and adding comments to showcase understanding. Here, most of the time was spent looking at specific lines to gain better understand of the finer details of the implementation. Nice thing was that the two models have some similar parts so the transition from a simpler, KNRM to a more complex, TK was easier and code more understandable.
+
+Train, validation and evaluation implementation was quite straightforward since its part of all neural models. There wasn't a set threshold for early stopping so we used 2000 iteration. Helper code from code_metrics came in very useful for calculating mrr and ndcg scores. 
+
+### Evaluation 
+#### MSMARCO
+```
+KNRM using 2 epochs:
+final validation 
+	loss 0.4918834933638573,
+	MRR@10: 0.158, nDCG@10: 0.198, MRR@20: 0.165, nDCG@20: 0.226
+test set
+	MRR@10: 0.157, nDCG@10: 0.201, MRR@20: 0.165, nDCG@20: 0.233
+```
+```
+TK using 2 epocks:
+final validation
+	loss 0.0875627768971026,
+	MRR@10: 0.265, nDCG@10: 0.317, MRR@20: 0.269, nDCG@20: 0.331
+test set
+	MRR@10: 0.279, nDCG@10: 0.331, MRR@20: 0.284, nDCG@20: 0.348
+```
+
+All the code was run using google colab because of the access to the cuda gpu. This made the training faster but it caused some trouble in the terms of the access to the gpu, memory issues and having to rerun the entire notebook occasionally.
 
 ## Part 3 - Extractive QA
 
